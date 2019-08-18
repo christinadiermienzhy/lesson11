@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>
+		
+	</title>
+</head>
+<body>
+	<script type="text/javascript">
+/*Вам нужно создать список задач, который умеет:
+добавлять новые задачи и проверять их уникальность. У каждой задачи есть статус, время создания и текст
+удалять задачу, но с условием (тут передаете в качестве аргумента confirm)
+редактировать задачу (тоже спрашиваете нужно ли сохранить изменения)
+выводить общее количество задач, сколько выполнили и сколько осталось
+генерировать id для ваших заметок
+сортировать в зависимости от условия - по алфавиту задачи или по статусу
+
+Ах, да! Это не просто объект - вам нужно сделать так, чтоб в него нельзя было вносить изменения, чтоб никто не переписал случайно его методы)*/
+
+var today = new Date();
+var dd = today.getDate();
+var mm = today.getMonth()+1;
+var yyyy = today.getFullYear();
+if(dd<10) {
+    dd = '0'+dd
+} 
+if(mm<10) {
+    mm = '0'+mm
+} 
+today = dd + '/' + mm + '/' + yyyy;
+
+var toDoList={};
+Object.defineProperties(toDoList, {
+	tasks:{
+		value:[]
+	},
+	createTasks:{
+		value:function(taskText){
+			var currentTaskIndex=this.tasks.findIndex(function(task){
+					if ((task.text).toUpperCase()===taskText.toUpperCase()){
+						return task;
+					}
+				})
+			console.log (currentTaskIndex);
+			if 	(currentTaskIndex>=0){
+				alert('Такая заметка уже существует!')
+			} else {
+				this.tasks.push({
+					text:taskText,
+					creationDate:today,
+					status:false,
+					id: (Math.random()*1000000).toFixed(0)
+				})
+			}	
+			},
+		writable:false,
+		configurable:false	
+		},
+	deleteTasks: {
+		value:function(id,verificationStatus){
+				var verificationStatus =confirm('Вы уверены, что необходимо удалить выбранную заметку?');
+				var currentTaskIndex=this.tasks.findIndex(function(task){
+					if (task.id===id){
+						return task;
+					}
+				})
+				if (verificationStatus===true) {
+					this.tasks.splice(currentTaskIndex,1);
+				}
+			}
+		},
+	editTasks:{
+		value:function(id, editedTask,verificationStatus){
+				var currentTaskIndex=this.tasks.findIndex(function(task){
+					if (task.id===id){
+						return task;
+					}
+				})
+				var verificationStatus =confirm('Сохранить сделанные изменения?');
+				if (verificationStatus===true){
+					this.tasks[currentTaskIndex].text=editedTask;
+				}
+			},
+		writable:false,
+		configurable:false	
+	},
+	checkDone:{
+		value:function(id){	
+				var currentTaskIndex=this.tasks.findIndex(function(task){
+					if (task.id===id){
+						return task;
+					}
+			});
+				console.log(this.tasks[currentTaskIndex].status);
+				return	this.tasks[currentTaskIndex].status=!this.tasks[currentTaskIndex].status;
+			},
+		writable:false,
+		configurable:false
+	},
+	count: {
+		value:function(){
+				var allTasks=this.tasks.length;
+				var doneTasks=this.tasks.filter(function(tasks){
+					if (tasks.status){
+						return tasks;
+					}
+				}).length;
+				return doneTasks+ '/' +allTasks
+			},
+		writable:false,
+		configurable:false	
+	},
+	sortByTaskText: {
+		value: function(){
+			this.tasks.sort(function(first,second){
+				var firstToUppercase=first.text.toUpperCase();
+				var secondToUppercase=second.text.toUpperCase();
+				if(firstToUppercase<secondToUppercase){
+					return -1;
+				} else if (firstToUppercase>secondToUppercase){
+					return 1;
+				} else {
+					return 0;
+				}	
+			});
+		}
+	},
+	sortByStatus: {
+		value: function(){
+			this.tasks.sort(function(first,second){
+				return second.status-first.status;
+			});
+		}
+	}
+});
+
+toDoList.createTasks('Помыть посуду');
+console.log(toDoList.tasks);
+//toDoList.deleteTasks('2klk');
+//console.log(toDoList.tasks);
+//toDoList.editTasks('0.329688','Накормить кота');
+//console.log(toDoList.tasks);
+//toDoList.checkDone('0.084187');
+//toDoList.createTasks('Помыть ПосудУ');
+//toDoList.createTasks('Решить задачу');
+toDoList.createTasks('Выгулять собаку');
+//toDoList.createTasks('Закончить ремонт');
+//console.log(toDoList.count());
+console.log(toDoList.tasks);
+//toDoList.sortByTaskText();
+//console.log(toDoList.tasks);
+//toDoList.sortByStatus();
+//console.log(toDoList.tasks);
+
+/*
+		var toDoList={
+			tasks:[],
+			createTasks:function(taskText){
+				this.tasks.push({
+					text:taskText,
+					creationDate:'18/08/2019',
+					status:false,
+					id:'2klk'
+				})
+			},
+			deleteTasks: function(id,verificationStatus){
+				var verificationStatus =confirm('Вы уверены, что необходимо удалить выбранную заметку?');
+				var currentTaskIndex=this.tasks.findIndex(function(task){
+					if (task.id===id){
+						return task;
+					}
+				})
+				if (verificationStatus===true) {
+					this.tasks.splice(currentTaskIndex,1);
+				}
+			},
+			editTasks:function(id, editedTask,verificationStatus){
+				var currentTaskIndex=this.tasks.findIndex(function(task){
+					if (task.id===id){
+						return task;
+					}
+				})
+				var verificationStatus =confirm('Сохранить изменения?');
+				if (verificationStatus===true){
+					this.tasks[currentTaskIndex].text=editedTask;
+				}
+			},
+			checkDone:function(id){	
+				var currentTaskIndex=this.tasks.findIndex(function(task){
+					if (task.id===id){
+						return task;
+					}
+			});
+				console.log(this.tasks[currentTaskIndex].status);
+				return	this.tasks[currentTaskIndex].status=!this.tasks[currentTaskIndex].status;
+			},
+			count: function(){
+				var allTasks=this.tasks.length;
+				var doneTasks=this.tasks.filter(function(tasks){
+					if (tasks.status){
+						return tasks;
+					}
+				}).length;
+				return doneTasks+ '/' +allTasks
+			}
+			
+			/*groupe: function(){
+
+			}
+		//}
+	}
+toDoList.createTasks('jklkjlkjljlkj');
+console.log(toDoList.tasks);
+//toDoList.deleteTasks('2klk');
+//console.log(toDoList.tasks);
+//toDoList.editTasks('2klk','0000000000000000000000000000000');
+//console.log(toDoList.tasks);
+//toDoList.checkDone('2klk');
+//console.log(toDoList.tasks);
+//toDoList.createTasks('dadadDF');
+//toDoList.createTasks('UIUIUIUIUI');
+//console.log(toDoList.count());
+
+*/
+
+	</script>
+</body>
+</html>
